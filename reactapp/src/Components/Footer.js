@@ -4,7 +4,7 @@ import { Container } from "react-bootstrap"
 const Fotter = (props) => (
     <Container className={props.className} fluid>
         <Container className="footer-container">
-            <p>Веб-приложение было разработано в ходе практики</p>
+            <p>Р’РµР±-РїСЂРёР»РѕР¶РµРЅРёРµ Р±С‹Р»Рѕ СЂР°Р·СЂР°Р±РѕС‚Р°РЅРѕ РІ С…РѕРґРµ РїСЂР°РєС‚РёРєРё</p>
         </Container>
     </Container>
 )

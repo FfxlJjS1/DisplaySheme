@@ -1,24 +1,19 @@
-import React, { Component } from 'react';
+import React from 'react';
 
 import './App.css';
 
 import Header from "./Components/Header";
-import Fotter from "./Components/Fotter";
+import Fotter from "./Components/Footer";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-export default class App extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {};
-    }
-
-    render() {
-        return (
-            <>
-                <Header className="content-container" />
-                <Fotter className="footer" />
-            </>
-        );
-    }
+function App() {
+    return (
+        <>
+            <Header className="content-container"/>
+            <Fotter className="footer"/>
+        </>
+    );
 }
+
+export default App;

@@ -30,12 +30,7 @@ export default class Header extends Component {
                         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                         <Navbar.Collapse id="responsive-navbar-nav" >
                             <Nav className="me-auto">
-                                <Nav.Link href="/"> Главное меню </Nav.Link>
-
-                                <DropdownButton collapseOnSelect expand="md" bg="dark" variant="dark" title="Онлайн калькулятор">
-                                    <DropdownItem href="/"></DropdownItem>
-                                </DropdownButton>
-
+                                <Nav.Link href="/"> Р“Р»Р°РІРЅРѕРµ РјРµРЅСЋ </Nav.Link>
                             </Nav>
                         </Navbar.Collapse>
                     </Container>
