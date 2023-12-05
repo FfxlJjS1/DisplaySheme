@@ -2,7 +2,7 @@ import React from 'react';
 
 import './App.css';
 
-import Header from "./Components/Header";
+import { Home } from './Pages/Home';
 import Fotter from "./Components/Footer";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -10,7 +10,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 function App() {
     return (
         <>
-            <Header className="content-container"/>
+            <div className="content-container" >
+                <Home />
+            </div>
+            
             <Fotter className="footer"/>
         </>
     );

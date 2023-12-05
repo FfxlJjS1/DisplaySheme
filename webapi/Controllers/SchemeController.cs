@@ -9,53 +9,29 @@ namespace webapi.Controllers
     public class SchemeController : ControllerBase
     {
         private DbCollectionContext db;
+        private Dictionary<string, Dictionary<string, DownClassificationLevel[]>>? _injectionInOutClassification = null;
+
+        private Dictionary<string, Dictionary<string, DownClassificationLevel[]>> InjectionInOutClassification { 
+            get {
+                if (_injectionInOutClassification == null)
+                    DefineInjectionInOutClassification();
+
+#pragma warning disable CS8603 // Возможно, возврат ссылки, допускающей значение NULL.
+                return _injectionInOutClassification;
+#pragma warning restore CS8603 // Возможно, возврат ссылки, допускающей значение NULL.
+            }
+        }
 
         public SchemeController(DbCollectionContext db)
         {
             this.db = db;
         }
 
-        [HttpGet("GetTipNpoTable")]
-        public IActionResult GetTipNpoTable()
-        {
-            return Ok(db.TipNpos.ToList());
-        }
-
-        // From surface to product park
-        [HttpGet("GetParentInjectionOutList")]
-        public IActionResult GetParentInjectionOutList()
-        {
-            return Ok((from scheme in db.Schemes
-                       where scheme.ParentId == 0
-                       select new
-                       {
-                           id = scheme.Id,
-                           name = scheme.Nam
-                       }).ToList());
-        }
-
-        public class DownClassificationLevel
-        {
-            public int Id { get; set; }
-            public string Name { get; set; } = "";
-            public string Name2 { get; set; } = "";
-
-            DownClassificationLevel() { }
-
-            public DownClassificationLevel(int id, string name, string name2)
-            {
-                Id = id;
-                Name = name;
-                Name2 = name2;
-            }
-        }
-
-        [HttpGet("GetInjectionInOutClassification")]
-        public Dictionary<string, Dictionary<string, DownClassificationLevel[]>> GetInjectionInOutClassification()
+        private void DefineInjectionInOutClassification()
         {
             var tipNpos = db.TipNpos.ToList();
 
-            var resultClassification = new Dictionary<string, Dictionary<string, DownClassificationLevel[]>>();
+            _injectionInOutClassification = new Dictionary<string, Dictionary<string, DownClassificationLevel[]>>();
 
 
             var injectionOutGroupObjects = new Dictionary<string, DownClassificationLevel[]>(){
@@ -88,7 +64,7 @@ namespace webapi.Controllers
                         tipNpos.First(x => x.TipNpoId == 10).Name,
                         tipNpos.First(x => x.TipNpoId == 10).Name2)
                     }
-                },
+                }/*,
                 { "Неопределенное", new DownClassificationLevel[] {
                     new DownClassificationLevel(2,
                         tipNpos.First(x => x.TipNpoId == 2).Name,
@@ -121,12 +97,90 @@ namespace webapi.Controllers
                         tipNpos.First(x => x.TipNpoId == 27).Name,
                         tipNpos.First(x => x.TipNpoId == 27).Name2)
                     }
-                }
+                }*/
             };
 
-            resultClassification.Add("Объекты схемы сбора", injectionOutGroupObjects);
+            _injectionInOutClassification.Add("Объекты схемы сбора", injectionOutGroupObjects);
+        }
 
-            return resultClassification;
+        [HttpGet("GetTipNpoTable")]
+        public IActionResult GetTipNpoTable()
+        {
+            return Ok(db.TipNpos.ToList());
+        }
+
+        // From surface to product park
+        [HttpGet("GetParentInjectionOutList")]
+        public IActionResult GetParentInjectionOutList()
+        {
+            var result = (from scheme in db.Schemes
+                          where scheme.ParentId == 0
+                          select new
+                          {
+                              id = scheme.Id,
+                              name = scheme.Nam
+                          }).ToList();
+
+            result.Insert(0, new { id = 0, name = "Не выбрано" });
+
+            return Ok(result);
+        }
+
+        public class DownClassificationLevel
+        {
+            public int Id { get; set; }
+            public string Name { get; set; } = "";
+            public string Name2 { get; set; } = "";
+
+            DownClassificationLevel() { }
+
+            public DownClassificationLevel(int id, string name, string name2)
+            {
+                Id = id;
+                Name = name;
+                Name2 = name2;
+            }
+        }
+
+        [HttpGet("GetInjectionInOutClassification")]
+        public Dictionary<string, Dictionary<string, DownClassificationLevel[]>> GetInjectionInOutClassification()
+        {
+            return InjectionInOutClassification;
+        }
+
+        private List<int[]> ConvertInOutClassificationToIdGroups()
+        {
+            List<int[]> resultIdsGroup = new List<int[]>();
+
+            var injectionInOutClassification = InjectionInOutClassification;
+
+            foreach(var topClassification in injectionInOutClassification)
+            {
+                foreach (var middleClassifitcation in topClassification.Value)
+                {
+                    resultIdsGroup.Add(
+                        middleClassifitcation.Value.Select(x => x.Id).ToArray()
+                    );
+                }
+            }
+
+            return resultIdsGroup;
+        }
+
+        private int[] GetAcceptedTipNpoIdArray(int[] selected_npo_tip_ids)
+        {
+            List<int[]> groupedInOutClassificationIds = ConvertInOutClassificationToIdGroups();
+            List<int> acceptedInt = new List<int>();
+
+            foreach(var selected in groupedInOutClassificationIds)
+            {
+                if(selected.Any(id => selected_npo_tip_ids.Contains(id)))
+                {
+                    acceptedInt.AddRange(selected.ToList());
+                }
+            }
+
+            return acceptedInt.ToArray();
         }
 
         class ObjectNodeFormat
@@ -143,10 +197,9 @@ namespace webapi.Controllers
         public IActionResult GetInjectionOutTreeTable(int productParkId, string selectedTipNpoIdsString)
         {
             var selectedTipNpoIds = selectedTipNpoIdsString.Split(";").Select(x => Convert.ToInt32(x)).ToArray();
-            var globalClassification = GetInjectionInOutClassification();
-            var result = new Dictionary<string, List<ObjectNodeFormat>>();
+            var resultDictionary = new Dictionary<string, ObjectNodeFormat[]>();
 
-            var resultTable = (from scheme in db.Schemes
+            var foundTreeObjectTable = (from scheme in db.Schemes
                                where scheme.Id == productParkId
                                select new ObjectNodeFormat
                                {
@@ -158,10 +211,10 @@ namespace webapi.Controllers
                                    name = scheme.Nam ?? ""
                                }).ToList();
 
-            for (int index = 0; index < resultTable.Count; index++)
+            for (int index = 0; index < foundTreeObjectTable.Count; index++)
             {
                 var forAdd = (from scheme in db.Schemes
-                              where scheme.ParentId == resultTable[index].id
+                              where scheme.ParentId == foundTreeObjectTable[index].id
                               select new ObjectNodeFormat
                               {
                                   id = scheme.Id,
@@ -172,25 +225,62 @@ namespace webapi.Controllers
                                   name = scheme.Nam ?? ""
                               }).ToList();
 
-                resultTable.AddRange(forAdd);
+                foundTreeObjectTable.AddRange(forAdd);
             }
+
+            var acceptedTipNpoIds = GetAcceptedTipNpoIdArray(selectedTipNpoIds);
+            
+            var globalClassification = InjectionInOutClassification;
 
             foreach (var topClassification in globalClassification.Values)
             {
-                foreach(var middleClassification in topClassification)
+                foreach (var middleClassification in topClassification)
                 {
-                    int[] middle_tip_npo_ids = middleClassification.Value.Select(x => x.Id).Where(x => selectedTipNpoIds.Contains(x)).ToArray();
+                    int[] middle_tip_npo_ids = middleClassification.Value.Select(x => x.Id).ToArray();
+                    int[] selected_middle_tip_npo_ids = middle_tip_npo_ids.Where(x => selectedTipNpoIds.Contains(x)).ToArray();
 
-                    var middleResult = resultTable.Where(x => middle_tip_npo_ids.Contains(x.tip_npo_id)).ToList();
+                    if (selected_middle_tip_npo_ids.Count() == 0 || middle_tip_npo_ids.Count() == 0)
+                        continue;
 
-                    if(middleResult.Count() > 0)
+                    var middleResult = foundTreeObjectTable.Where(x => middle_tip_npo_ids.Contains(x.tip_npo_id)).ToArray();
+
+                    if (middleResult.Count() == 0)
+                        continue;
+
+                    string unselected_middle_tip_npo_names = string.Join(", ", middleClassification.Value.Where(x => !selected_middle_tip_npo_ids.Contains(x.Id)).Select(x => x.Name));
+
+                    for (int index = 0; index < middleResult.Count(); index++)
                     {
-                        result.Add(middleClassification.Key, middleResult);
+                        var downResult = middleResult[index];
+                        var parent_id = downResult.parent_id;
+                        var parent_npo_id = downResult.parent_npo_id;
+
+                        // Rename an object that is not selected but is in a group where at least one other object is selected.
+                        if (!selected_middle_tip_npo_ids.Contains(downResult.tip_npo_id))
+                        {
+                            downResult.name = unselected_middle_tip_npo_names + (selected_middle_tip_npo_ids.Count() + 1 == middle_tip_npo_ids.Count() ? " отсутствует" : " отсутствуют");
+                        }
+
+                        // Check parents for using in presentation
+                        while (!acceptedTipNpoIds.Contains(parent_npo_id) && parent_id != 0)
+                        {
+                            var parent_object = foundTreeObjectTable.First(x => x.id == parent_id);
+
+                            parent_id = parent_object.parent_id;
+                            parent_npo_id = parent_object.parent_npo_id;
+                        }
+
+                        downResult.parent_id = parent_id;
+                        downResult.parent_npo_id = parent_npo_id;
                     }
+
+                    middleResult.Reverse();
+
+                    resultDictionary.Add(middleClassification.Key, middleResult);
                 }
             }
 
-            return Ok(result);
+            return Ok(resultDictionary);
         }
 
         [HttpGet("GetObjectInfo")]

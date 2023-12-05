@@ -31,9 +31,15 @@ export class CommunicationWithServer {
         return data;
     }
     
-    static async GetInjectionOutTreeTable(productParkId) {
+    static async GetInjectionOutTreeTable(productParkId, selectedTipNpoIds) {
+        let selectedTipNpoIdsString = selectedTipNpoIds.join(';');
+
+        if(selectedTipNpoIdsString == "") {
+            selectedTipNpoIdsString = "0";
+        }
+
         const data = this.GetRequest(this.schemeApi + "/GetInjectionOutTreeTable?productParkId=" + productParkId
-            + "&selectedTipNpoIdsString=1;2;3;4;5;6;7;10;11;12;13;14;16;25;26;27");
+            + "&selectedTipNpoIdsString=" + selectedTipNpoIdsString); // 1;2;3;4;5;6;7;10;11;12;13;14;16;25;26;27
 
         return data;
     }
