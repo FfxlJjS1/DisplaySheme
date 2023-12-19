@@ -137,8 +137,8 @@ namespace webapi.Controllers
             public DownClassificationLevel(int id, string name, string name2)
             {
                 Id = id;
-                Name = name;
-                Name2 = name2;
+                Name = name.Trim();
+                Name2 = name2.Trim();
             }
         }
 
@@ -207,8 +207,8 @@ namespace webapi.Controllers
                                    parent_id = scheme.ParentId,
                                    parent_npo_id = scheme.ParentTipNpoId ?? 0,
                                    tip_npo_id = scheme.TipNpoId,
-                                   tip_npo_name = scheme.TipNpo.Name,
-                                   name = scheme.Nam ?? ""
+                                   tip_npo_name = scheme.TipNpo.Name.Trim(),
+                                   name = scheme.Nam == null ? "" : scheme.Nam.Trim()
                                }).ToList();
 
             for (int index = 0; index < foundTreeObjectTable.Count; index++)
@@ -221,8 +221,8 @@ namespace webapi.Controllers
                                   parent_id = scheme.ParentId,
                                   parent_npo_id = scheme.ParentTipNpoId ?? 0,
                                   tip_npo_id = scheme.TipNpoId,
-                                  tip_npo_name = scheme.TipNpo.Name,
-                                  name = scheme.Nam ?? ""
+                                  tip_npo_name = scheme.TipNpo.Name.Trim(),
+                                  name = scheme.Nam == null ? "" : scheme.Nam.Trim()
                               }).ToList();
 
                 foundTreeObjectTable.AddRange(forAdd);

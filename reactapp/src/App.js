@@ -6,13 +6,12 @@ import { Home } from './Pages/Home';
 import Fotter from "./Components/Footer";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Header from './Components/Header';
 
 function App() {
     return (
         <>
-            <div className="content-container" >
-                <Home />
-            </div>
+            <Header/>
             
             <Fotter className="footer"/>
         </>
