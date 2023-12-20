@@ -190,6 +190,7 @@ namespace webapi.Controllers
             public int parent_npo_id { get; set; }
             public int tip_npo_id { get; set; }
             public string tip_npo_name { get; set; } = "";
+            public string full_name { get; set; } = "";
             public string name { get; set; } = "";
         }
 
@@ -208,6 +209,7 @@ namespace webapi.Controllers
                                    parent_npo_id = scheme.ParentTipNpoId ?? 0,
                                    tip_npo_id = scheme.TipNpoId,
                                    tip_npo_name = scheme.TipNpo.Name.Trim(),
+                                   full_name = scheme.TipNpo.Name + " - " + (scheme.Nam == null ? "" : scheme.Nam.Trim()),
                                    name = scheme.Nam == null ? "" : scheme.Nam.Trim()
                                }).ToList();
 
@@ -222,6 +224,7 @@ namespace webapi.Controllers
                                   parent_npo_id = scheme.ParentTipNpoId ?? 0,
                                   tip_npo_id = scheme.TipNpoId,
                                   tip_npo_name = scheme.TipNpo.Name.Trim(),
+                                   full_name = scheme.TipNpo.Name + " - " + (scheme.Nam == null ? "" : scheme.Nam.Trim()),
                                   name = scheme.Nam == null ? "" : scheme.Nam.Trim()
                               }).ToList();
 

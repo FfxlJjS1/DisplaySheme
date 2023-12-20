@@ -12,9 +12,10 @@ export function CustomizableNode({ data }) {
 
     const customizeProp = data.customize;
     const nodeWidth = data.width;
+    const nodeHeight = data.height;
 
     return (
-        <div className="customizable-node" style={{width: nodeWidth}}>
+        <div className="customizable-node" style={{width: nodeWidth, height: nodeHeight}}>
             {customizeProp[0] ? <Handle type="target" position={Position.Left} /> : null}
             {customizeProp[1] ? <Handle type="target" position={Position.Bottom} /> : null}
             <div>

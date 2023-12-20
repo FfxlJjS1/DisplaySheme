@@ -51,15 +51,15 @@ function MyDiagram(props) {
             const subTable = table[filterKey];
             let filteredSubTable = [];
 
-            // Get elements that have name like filter
+            // Get elements that have full_name like filter
             if (filter !== "") {
-                filteredSubTable = subTable.filter(element => element.name.includes(filter));
+                filteredSubTable = subTable.filter(element => element.full_name.includes(filter));
 
                 if (filteredSubTable.length > 0) {
                     filteredSubTable.forEach((element) => {
                         addedNodeIds.push(element.id);
 
-                        if(!acceptedParentNodeIds.includes(element.parent_id))
+                        if (!acceptedParentNodeIds.includes(element.parent_id))
                             acceptedParentNodeIds.push(element.parent_id);
                     });
 
@@ -95,14 +95,15 @@ function MyDiagram(props) {
 
         // Filtering from end to  start
         const rKeys = keys.reverse();
-        
+        let afterFilterFromEnd = false;
+
         for (const rKeyIndex in rKeys) {
             const rKey = rKeys[rKeyIndex];
             const filter = searchByObjectsFilters[rKey];
-            const subTable = table[rKey];
+            const subTable = table[rKey].filter(element => addedNodeIds.includes(element.parent_id) && !addedNodeIds.includes(element.id));
             let filteredSubTable = filteredTable[rKey];
 
-            if (addedNodeIds.length > 0 && filter == "") {
+            if (subTable.length > 0 && afterFilterFromEnd) {
                 let isAdded = true;
 
                 while (isAdded) {
@@ -121,6 +122,8 @@ function MyDiagram(props) {
                 }
             }
 
+            afterFilterFromEnd = afterFilterFromEnd || filter != "";
+
             filteredTable[rKey] = filteredSubTable;
         }
 
@@ -130,16 +133,13 @@ function MyDiagram(props) {
     }
 
 
-
     // Setting groups, nodes and edges parametrs
     let initialNodes = [];
     let initialEdges = [];
 
 
-    var positionForParentObjectmap = new Map();
-
-    const nodeWidth = 160;
-    const nodeXMove = nodeWidth + 20 * 2, nodeYMove = 100; // For default presentation parametrs
+    const nodeWidth = 160, nodeHeight = 40;
+    const nodeXMove = nodeWidth + 20 * 2, nodeYMove = nodeHeight + 50; // For default presentation parametrs
 
     const groupBetweenVoidWidth = 50,
         groupVoidSideWidth = 20,
@@ -151,62 +151,167 @@ function MyDiagram(props) {
 
     const nodeXPos = groupVoidSideWidth;
 
-    for (let keyIndex = 0; keyIndex < keys.length; keyIndex++) {
-        const localKey = keys[keyIndex];
-        const objects = table[localKey];
+    if (diagramStructureKey == RadioGroup[0].key) {
+        for (let keyIndex = 0; keyIndex < keys.length; keyIndex++) {
+            const localKey = keys[keyIndex];
+            const objects = table[localKey];
 
-        groupHeight = nodeYMove * (objects.length - 1) + 40 + groupVoidSideWidth * 2 + groupHeaderHeight;
+            groupHeight = nodeYMove * (objects.length - 1) + 40 + groupVoidSideWidth * 2 + groupHeaderHeight;
 
-        // Add group node
-        initialNodes.push({
-            id: localKey,
-            data: { label: localKey },
-            position: { x: groupXPos, y: groupYPos },
-            style: { backgroundColor: 'rgba(143, 181, 242, 0.2)', width: groupWidth, height: groupHeight }
-        });
+            // Add group node
+            initialNodes.push({
+                id: localKey,
+                data: { label: localKey },
+                position: { x: groupXPos, y: groupYPos },
+                style: { backgroundColor: 'rgba(143, 181, 242, 0.2)', width: groupWidth, height: groupHeight, fontSize: 15 }
+            });
 
-        groupXPos += (nodeXMove + groupBetweenVoidWidth);
+            groupXPos += (nodeXMove + groupBetweenVoidWidth);
 
-        // Add nodes to group node and add edges
-        let nodeYPos = groupVoidSideWidth + groupHeaderHeight;
+            // Add nodes to group node and add edges
+            let nodeYPos = groupVoidSideWidth + groupHeaderHeight;
 
-        for (let objectId in objects) {
-            const object = objects[objectId];
-            /*
-            if (!positionForParentObjectmap.has(object.parent_id)) {
-                positionForParentObjectmap.set(object.parent_id, { y: nodeYPos });
+            for (let objectId in objects) {
+                const object = objects[objectId];
+
+                initialNodes.push({
+                    id: '\"' + object.id + '\"',
+                    data: {
+                        label: object.full_name, //object.tip_npo_name + ' - ' + object.name,
+                        customize: [true, true, true, true],
+                        width: nodeWidth,
+                        height: nodeHeight,
+                    },
+                    parentNode: localKey,
+                    type: 'customizable',
+                    position: { x: nodeXPos, y: nodeYPos }
+                });
+
+                initialEdges.push({
+                    id: 'e' + object.parent_id + '-' + object.id,
+                    target: '\"' + object.parent_id + '\"',
+                    source: '\"' + object.id + '\"',
+                    type: 'step',
+                    markerEnd: {
+                        type: MarkerType.ArrowClosed,
+                    },
+                });
+
+                nodeYPos += nodeYMove;
+            }
+        }
+    }
+    else if (diagramStructureKey == RadioGroup[1].key) {
+        let dependentsToParent = new Map();
+
+        // Get all parents with their childs
+        for (const keyIndex in keys) {
+            const key = keys[keyIndex];
+            const subTable = table[key];
+
+            for (const elementIndex in subTable) {
+                const element = subTable[elementIndex];
+
+                if (dependentsToParent[element.parent_id] == undefined) {
+                    dependentsToParent[element.parent_id] = [];
+                    dependentsToParent[element.parent_id].push([element.id, key]);
+                }
+                else {
+                    dependentsToParent[element.parent_id].push([element.id, key]);
+                }
+            }
+        }
+
+        const nodeWidth = 160, nodeHeight = 40;
+        const nodeXMove = nodeWidth + 20 * 2, nodeYMove = nodeHeight + 50; // For default presentation parametrs
+        let nodeXPos = 0, nodeYPos = 0;
+
+        let queue = [[0, '']];
+        let count_for_groups = 1;
+
+        for (let index = 0; index < queue.length; ){
+            const local_coutn_for_groups = count_for_groups;
+            count_for_groups = 0;
+
+            let minXNodePos = 0;
+            let local_node_x_pos = nodeXPos;
+
+            for (let number_for_group = 1; number_for_group <= local_coutn_for_groups; number_for_group++) {
+                const queue_element = queue[index + number_for_group - 1];
+                let group = dependentsToParent[queue_element[0]];
+
+                for (let group_index = 0; group_index < group.length; group_index++) {
+                    const group_element = group[group_index];
+                    const local_dependents = dependentsToParent[group_element[0]];
+
+                    if (local_dependents != undefined) {
+                        if (local_dependents.length == 1) {
+                            group.push(local_dependents[0]);
+                        }
+                        else if (local_dependents.length > 1) {
+                            queue.push(group_element);
+
+                            count_for_groups++;
+                        }
+                    }
+                }
+
+                let is_honest = false;
+
+                for (let group_element_index in group) {
+                    const group_element = group[group_element_index];
+                    const node_id = group_element[0];
+                    const node_key = group_element[1];
+
+                    const node = table[node_key].filter(node => node.id == node_id)[0];
+
+                    const local_node_y_pos = is_honest ? nodeYPos + nodeYMove : nodeYPos;
+
+                    initialNodes.push({
+                        id: '\"' + node.id + '\"',
+                        data: {
+                            label: node.full_name, //node.tip_npo_name + ' - ' + node.name,
+                            customize: [true, true, false, true],
+                            width: nodeWidth,
+                            height: nodeHeight,
+                        },
+                        type: 'customizable',
+                        position: { x: nodeXPos, y: local_node_y_pos }
+                    });
+
+                    initialEdges.push({
+                        id: 'e' + node.parent_id + '-' + node.id,
+                        target: '\"' + node.parent_id + '\"',
+                        source: '\"' + node.id + '\"',
+                        type: 'step',
+                        markerEnd: {
+                            type: MarkerType.ArrowClosed,
+                        },
+                    });
+
+
+                    if (!is_honest) {
+                        is_honest = true;
+                    }
+                    else {
+                        nodeXPos -= nodeXMove;
+
+                        is_honest = false;
+                    }
+                }
+
+                if (minXNodePos > nodeXPos) {
+                    minXNodePos = nodeXPos;
+                }
+
+                nodeXPos = local_node_x_pos;
+                nodeYPos -= nodeYMove;
             }
 
-            const findDefinedPosition = positionForParentObjectmap.get(object.id);
+            nodeXPos += (minXNodePos - nodeXMove);
+            nodeYPos = 0;
 
-            if (findDefinedPosition != undefined) {
-               nodeYPos = findDefinedPosition.y;
-            }*/
-
-            initialNodes.push({
-                id: '\"' + object.id + '\"',
-                data: {
-                    label: object.tip_npo_name + ' - ' + object.name,
-                    customize: [true, true, true, true],
-                    width: nodeWidth,
-                },
-                parentNode: localKey,
-                type: 'customizable',
-                //extent: 'parent',
-                position: { x: nodeXPos, y: nodeYPos }
-            });
-
-            initialEdges.push({
-                id: 'e' + object.parent_id + '-' + object.id,
-                target: '\"' + object.parent_id + '\"',
-                source: '\"' + object.id + '\"',
-                type: 'step',
-                markerEnd: {
-                    type: MarkerType.ArrowClosed,
-                },
-            });
-
-            nodeYPos += nodeYMove;
+            index += local_coutn_for_groups;
         }
     }
 

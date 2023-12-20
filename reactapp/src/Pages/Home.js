@@ -138,7 +138,7 @@ export class Home extends Component {
             : null;
         let productParkTreeDiagram = !this.state.loadingProductParkTree && !this.state.productParkTreeDiagramLoading && this.state.productParkTreeDiagram != null
             ? this.state.productParkTreeDiagram
-            : null; //<MyDiagram table={[]} searchByObjectsFilters={null} />;
+            : null; // <MyDiagram table={[]} searchByObjectsFilters={null} />;
 
         if (this.state.productParkTreeDiagramLoading) {
             this.renderProductParkDiagramArea();
@@ -185,7 +185,7 @@ export class Home extends Component {
                                             name={radioGroupName}
                                             type='radio'
                                             id={radioGroupButton.id}
-                                            onClick={e => radioGroupOnClick(e, radioGroupButton.key)}
+                                            onClick={e => radioGroupOnClick(radioGroupButton.key)}
                                         />
                                     )}
                                 </Form.Group>
