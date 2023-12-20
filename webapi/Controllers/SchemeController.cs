@@ -261,7 +261,7 @@ namespace webapi.Controllers
                         // Rename an object that is not selected but is in a group where at least one other object is selected.
                         if (!selected_middle_tip_npo_ids.Contains(downResult.tip_npo_id))
                         {
-                            downResult.name = unselected_middle_tip_npo_names + (selected_middle_tip_npo_ids.Count() + 1 == middle_tip_npo_ids.Count() ? " отсутствует" : " отсутствуют");
+                            downResult.full_name = unselected_middle_tip_npo_names + (selected_middle_tip_npo_ids.Count() + 1 == middle_tip_npo_ids.Count() ? " отсутствует" : " отсутствуют");
                         }
 
                         // Check parents for using in presentation
