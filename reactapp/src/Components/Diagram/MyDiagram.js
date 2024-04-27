@@ -3,6 +3,7 @@ import ReactFlow, {
     MiniMap,
     Controls,
     MarkerType,
+    getOutgoers, getConnectedEdges, NodeToolbar, Position, //сал
     applyNodeChanges, applyEdgeChanges,
     Background,
 } from 'reactflow';
@@ -11,11 +12,15 @@ import { CustomizableNode } from './CustomizableNode'
 import 'reactflow/dist/style.css';
 
 export const RadioGroup = [
-    { label: 'Столбцовый', id: 'radio-group-1', key: 1 },
-    { label: 'Столбцовый - двух строковой', id: 'radio-group-2', key: 2 },
+    { label: 'Вертикально', id: 'radio-group-1', key: 1, checked: true},
+    { label: 'Горизонтально', id: 'radio-group-2', key: 2, checked: false },
 ];
 
-const nodeTypes = { customizable: CustomizableNode };
+
+
+const nodeTypes = {
+    customizable: CustomizableNode,
+};
 
 function MyDiagram(props) {
     let table = props.table;
@@ -138,8 +143,8 @@ function MyDiagram(props) {
     let initialEdges = [];
 
 
-    const nodeWidth = 160, nodeHeight = 40;
-    const nodeXMove = nodeWidth + 20 * 2, nodeYMove = nodeHeight + 50; // For default presentation parametrs
+    const nodeWidth = 200, nodeHeight = 40; //Салават
+    const nodeXMove = nodeWidth + 20 * 2, nodeYMove = nodeHeight + 10; // For default presentation parametrs //Салават nodeYMove
 
     const groupBetweenVoidWidth = 50,
         groupVoidSideWidth = 20,
@@ -163,7 +168,7 @@ function MyDiagram(props) {
                 id: localKey,
                 data: { label: localKey },
                 position: { x: groupXPos, y: groupYPos },
-                style: { backgroundColor: 'rgba(143, 181, 242, 0.2)', width: groupWidth, height: groupHeight, fontSize: 15 }
+                style: { backgroundColor: 'rgba(8, 164, 116, 0.4)', width: groupWidth, height: groupHeight, fontSize: 15, color: '#fff', fontWeight: 'bold' }
             });
 
             groupXPos += (nodeXMove + groupBetweenVoidWidth);
@@ -181,16 +186,18 @@ function MyDiagram(props) {
                         customize: [true, true, true, true],
                         width: nodeWidth,
                         height: nodeHeight,
+                        tip_npo_id: object.tip_npo_id,
                     },
                     parentNode: localKey,
+                    extent: 'parent',
                     type: 'customizable',
                     position: { x: nodeXPos, y: nodeYPos }
                 });
 
                 initialEdges.push({
                     id: 'e' + object.parent_id + '-' + object.id,
-                    target: '\"' + object.parent_id + '\"',
-                    source: '\"' + object.id + '\"',
+                    target: '\"' + object.id  + '\"',
+                    source: '\"' + object.parent_id + '\"',
                     type: 'step',
                     markerEnd: {
                         type: MarkerType.ArrowClosed,
@@ -274,6 +281,8 @@ function MyDiagram(props) {
                             customize: [true, true, false, true],
                             width: nodeWidth,
                             height: nodeHeight,
+                            tip_npo_id: node.tip_npo_id,
+
                         },
                         type: 'customizable',
                         position: { x: nodeXPos, y: local_node_y_pos }
@@ -318,6 +327,58 @@ function MyDiagram(props) {
     // Setting react flow scheme
     const [nodes, setNodes] = useState(initialNodes);
     const [edges, setEdges] = useState(initialEdges);
+    //салават
+    const [hidden, setHidden] = useState(true);
+    const hide = (hidden, childEdgeID, childNodeID) => (nodeOrEdge) => {
+        if (
+            childEdgeID.includes(nodeOrEdge.id) ||
+            childNodeID.includes(nodeOrEdge.id)
+        )
+            nodeOrEdge.hidden = hidden;
+        return nodeOrEdge;
+    };
+
+    const checkTarget = (edge, id) => {
+        let edges = edge.filter((ed) => {
+            return ed.target !== id;
+        });
+        return edges;
+    };
+
+    let outgoers = [];
+    let connectedEdges = [];
+    let stack = [];
+        
+    const nodeClick = (some, node) => {
+        let currentNodeID = node.id;
+        stack.push(node);
+        while (stack.length > 0) {
+            let lastNOde = stack.pop();
+            let childnode = getOutgoers(lastNOde, nodes, edges);
+            let childedge = checkTarget(
+                getConnectedEdges([lastNOde], edges),
+                currentNodeID
+            );
+            childnode.map((goer, key) => {
+                stack.push(goer);
+                outgoers.push(goer);
+            });
+            childedge.map((edge, key) => {
+                connectedEdges.push(edge);
+            });
+        }
+
+        let childNodeID = outgoers.map((node) => {
+            return node.id;
+        });
+        let childEdgeID = connectedEdges.map((edge) => {
+            return edge.id;
+        });
+
+        setNodes((node) => node.map(hide(hidden, childEdgeID, childNodeID)));
+        setEdges((edge) => edge.map(hide(hidden, childEdgeID, childNodeID)));
+        setHidden(!hidden);
+    };
 
     const onNodesChange = useCallback(
         (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -329,11 +390,22 @@ function MyDiagram(props) {
     );
 
     const rfStyle = {
-        backgroundColor: '#DCD0D0',
+        backgroundColor: '#e6f7f1',
     };
 
+    //#e6f7f1  -- светло-зеленый
+    //#f5f5f5 -- светло-серый
+
+
+    //Салават
+    const miniMapStyle = {
+        background: '#fff',
+    };
+
+    //const [label, setLabel] = useState(props.data.tip_npo_id);
+
     return (
-        <div style={{ height: 700, width: 1200 }}>
+        <div style={{ height: 500, width: 1200 }}>
             <ReactFlow
                 nodes={nodes}
                 onNodesChange={onNodesChange}
@@ -341,17 +413,22 @@ function MyDiagram(props) {
                 onEdgesChange={onEdgesChange}
                 nodeTypes={nodeTypes}
                 style={rfStyle}
+                onNodeClick={nodeClick}
+                //NodeToolbar={onclick}
             >
-                <Background color="#ccc" variant="dots" />
-                <Controls />
+                <Background color="#fff" variant="dots" />
                 <MiniMap
+                    style={miniMapStyle}
                     nodeColor={nodeColor}
+                    nodeStrokeWidth={3}
                     pannable zoomable />
+                <Controls  />
+
             </ReactFlow>
         </div>
     );
 }
-
+//Салават
 function nodeColor(node) {
     switch (node.type) {
         case 'input':
@@ -359,7 +436,7 @@ function nodeColor(node) {
         case 'output':
             return '#6865A5';
         default:
-            return '#ff0072';
+            return '#038e64'; //темно-зеленый
     }
 }
 

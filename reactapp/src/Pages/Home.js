@@ -101,7 +101,6 @@ export class Home extends Component {
 
         if (data != null) {
             this.state.productParkTree = data;
-
             {
                 let searchByObjectsFilters = {};
                 let searchByObjectsFiltersKeys = [];
@@ -178,7 +177,7 @@ export class Home extends Component {
                                     {<CheckboxTreeWidget ref={this._child} nodes={this.state.checkboxTreeNodes} />}
                                 </Form.Group>
                                 <Form.Group className="mt-3">
-                                    <Form.Label>Вид группировки элементов:</Form.Label>
+                                    <Form.Label>Вид схемы:</Form.Label>
                                     {RadioGroup.map((radioGroupButton) =>
                                         <Form.Check
                                             label={radioGroupButton.label}
@@ -190,8 +189,10 @@ export class Home extends Component {
                                     )}
                                 </Form.Group>
 
-                                <Button className="mt-3 mb-3" variant="primary" type="button"
+                                <Button className="mt-3 mb-3 button" type="button"
+                                    variant="success"
                                     disabled={this.state.loadingProductParkTree || this.state.selectedTopProductParkId <= 0 || this.state.productParkTreeDiagramStructureKey == null}
+                                    style={{backgroundColor: '#038e64',}}
                                     onClick={handleClickLoad}>
                                     {!this.state.loadingProductParkTree ? "Отобразить" : "Загружается"}
                                 </Button>
@@ -218,8 +219,11 @@ export class Home extends Component {
                                                     )}
 
                                                     <Col xs="auto">
-                                                        <Button className="mb-3" variant="primary" type="button"
-                                                            onClick={() => this.setState({productParkTreeDiagramLoading: true})}
+                                                        <Button className="mb-3 button"
+                                                            variant="success"
+                                                            type="button"
+                                                            style={{ backgroundColor: '#038e64', }}
+                                                            onClick={() => this.setState({ productParkTreeDiagramLoading: true })}
                                                             disabled={this.state.productParkTreeDiagramLoading}>
                                                             Поиск
                                                         </Button>
