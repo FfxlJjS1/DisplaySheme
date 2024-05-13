@@ -6,8 +6,6 @@ import {
 
 import './customizable.css';
 
-export const NodeWidth = 150;
-
 export function CustomizableNode({ data }) {
     const onChange = useCallback((evt) => {
         console.log(evt.target.value);

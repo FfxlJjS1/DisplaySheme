@@ -377,6 +377,7 @@ function MyDiagram(props) {
 
         setNodes((node) => node.map(hide(hidden, childEdgeID, childNodeID)));
         setEdges((edge) => edge.map(hide(hidden, childEdgeID, childNodeID)));
+
         setHidden(!hidden);
     };
 
