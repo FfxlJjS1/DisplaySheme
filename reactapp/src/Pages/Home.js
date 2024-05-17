@@ -5,6 +5,8 @@ import { CommunicationWithServer } from "../FunctionalClasses/CommunicationWithS
 
 import MyDiagram, { RadioGroup } from "../Components/Diagram/MyDiagram";
 import { CheckboxTreeWidget } from "../Components/CheckboxTree";
+import CustomInputDropdown from "../Components/CustomInputDropdown/CustomInputDropdown";
+//import CustomInputDropdown from "../Components/CustomInputDropdown";
 
 export class Home extends Component {
     constructor(props) {
@@ -217,7 +219,7 @@ export class Home extends Component {
                                                             </Form.Group>
                                                         </Col>
                                                     )}
-
+                                                    
                                                     <Col xs="auto">
                                                         <Button className="mb-3 button"
                                                             variant="success"

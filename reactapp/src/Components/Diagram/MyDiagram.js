@@ -26,7 +26,7 @@ function MyDiagram(props) {
     let table = props.table;
     const diagramStructureKey = props.diagramStructureKey;
     const searchByObjectsFilters = props.searchByObjectsFilters;
-
+    
     // Filtering
     let keys = [];
 
@@ -382,7 +382,7 @@ function MyDiagram(props) {
     };
 
     const onNodesChange = useCallback(
-        (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
+        (changes) => setNodes((nds) => applyNodeChanges(changes, nds) ),
         [],
     );
     const onEdgesChange = useCallback(

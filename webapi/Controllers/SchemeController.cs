@@ -199,6 +199,7 @@ namespace webapi.Controllers
             var acceptedTipNpoIds = GetAcceptedTipNpoIdArray(selectedTipNpoIds);
             var resultDictionary = new Dictionary<string, ObjectNodeFormat[]>();
 
+            // Получение всего товарного парка
             var foundTreeObjectTable = (from scheme in db.Schemes
                                         where scheme.Id == productParkId
                                         select new ObjectNodeFormat
@@ -232,6 +233,7 @@ namespace webapi.Controllers
                 foundTreeObjectTable.AddRange(forAdd);
             }
 
+            // Распределение и пересоединение с выбранными пунктами
             var globalClassification = InjectionInOutClassification;
 
             foreach (var topClassification in globalClassification.Values)
@@ -281,6 +283,70 @@ namespace webapi.Controllers
                 };
             }
 
+            var topClassifications = resultDictionary.Keys.Reverse().ToList();
+
+            // Сортировка по дереву в категориях
+            for(int top_class_index = 0; top_class_index < topClassifications.Count(); top_class_index++)
+            {
+                string top_classification_key = topClassifications[top_class_index];
+                ObjectNodeFormat[] objects = resultDictionary[top_classification_key];
+                List<ObjectNodeFormat> sorted_objects = new List<ObjectNodeFormat>();
+
+                if (top_class_index == 0)
+                {
+                    resultDictionary[topClassifications[top_class_index]] = objects.OrderBy(x => x.id).ToArray();
+
+                    continue;
+                }
+
+                int sorted_objects_count = 0;
+                int top_class_parent_index = top_class_index - 1; // Для прохода по всем вышестоящим родителям
+
+                while (sorted_objects_count < objects.Length && top_class_parent_index != -1)
+                {
+                    var parent_class_ids = resultDictionary[topClassifications[top_class_parent_index]].Select(x => x.id).ToList(); // Можно оптимизировать заменим на проверку по parent_npo_id из другой классификации
+                    var objects_for_sort_parent_ids = objects.Where(x => parent_class_ids.Contains(x.parent_id));
+
+                    objects_for_sort_parent_ids = objects_for_sort_parent_ids.OrderBy(object_ => parent_class_ids.IndexOf(object_.parent_id));
+
+                    sorted_objects.AddRange(objects_for_sort_parent_ids);
+
+                    sorted_objects_count += objects_for_sort_parent_ids.Count();
+                    top_class_parent_index--; // Так как родители отсортированы по убыванию дерева, то для определения родителей оставшихся объектов необъодимо идти к родителям родителей и т.д.
+                }
+
+                // Если внутри объектов есть зависимые от объектов того же уровня, например, ДНС от другого ДНС
+                if (top_class_parent_index == -1)
+                {
+                    List<int> sorted_object_ids = sorted_objects.Select(object_ => object_.id).ToList();
+                    var objects_for_inside_sorting = objects.Where(object_ => !sorted_object_ids.Contains(object_.id)).OrderBy(object_ => object_.id).ToList();
+
+                    while(objects_for_inside_sorting.Count() > 0)
+                    {
+                        List<int> sorted_inside_object_ids = new List<int>();
+
+                        foreach(var object_ in objects_for_inside_sorting)
+                        {
+                            int index_to_insert = sorted_object_ids.IndexOf(object_.parent_id);
+
+                            if (index_to_insert != -1)
+                            {
+                                sorted_object_ids.Insert(index_to_insert+1, object_.id);
+
+                                sorted_objects.Insert(index_to_insert+1, object_);
+
+                                sorted_inside_object_ids.Add(object_.id);
+                            }
+                        }
+
+                        objects_for_inside_sorting = objects_for_inside_sorting.Where(object_ => !sorted_inside_object_ids.Contains(object_.id)).ToList();
+                    }
+                }
+
+                resultDictionary[top_classification_key] = sorted_objects.ToArray();
+            }
+
+            // Возрат результата
             return Ok(resultDictionary);
         }
 

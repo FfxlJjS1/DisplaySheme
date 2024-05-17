@@ -1,22 +1,13 @@
-import { useCallback, useState } from 'react';
-import {
-    Handle, Position, NodeToolbar,
-    getOutgoers, getConnectedEdges, useNodes, useEdges//сал
-} from 'reactflow';
+import { useState } from 'react';
+import { Handle, Position, NodeToolbar } from 'reactflow';
 
 import './customizable.css';
 
 export function CustomizableNode({ data }) {
-    const onChange = useCallback((evt) => {
-        console.log(evt.target.value);
-    }, []);
-
-    //const nodes = useNodes(); //сал
-    //const edges = useEdges(); //сал
-
     const customizeProp = data.customize;
     const nodeWidth = data.width;
     const nodeHeight = data.height;
+
     //Салават
     let _logo = "";
     switch (data.tip_npo_id) {
@@ -38,75 +29,14 @@ export function CustomizableNode({ data }) {
             break;
     }
 
-    /*
-    // Setting react flow scheme
-    const [nodes, setNodes] = useNodes();
-    const [edges, setEdges] = useEdges();
-    //салават
-    const [hidden, setHidden] = useState(true);
-    const hide = (hidden, childEdgeID, childNodeID) => (nodeOrEdge) => {
-        if (
-            childEdgeID.includes(nodeOrEdge.id) ||
-            childNodeID.includes(nodeOrEdge.id)
-        )
-            nodeOrEdge.hidden = hidden;
-        return nodeOrEdge;
-    };
-
-    const checkTarget = (edge, id) => {
-        let edges = edge.filter((ed) => {
-            return ed.target !== id;
-        });
-        return edges;
-    };
-
-    let outgoers = [];
-    let connectedEdges = [];
-    let stack = [];
-
-    const nodeClick = (some, node) => {
-        let currentNodeID = node.id;
-        stack.push(node);
-        while (stack.length > 0) {
-            let lastNOde = stack.pop();
-            let childnode = getOutgoers(lastNOde, nodes, edges);
-            let childedge = checkTarget(
-                getConnectedEdges([lastNOde], edges),
-                currentNodeID
-            );
-            childnode.map((goer, key) => {
-                stack.push(goer);
-                outgoers.push(goer);
-            });
-            childedge.map((edge, key) => {
-                connectedEdges.push(edge);
-            });
-        }
-
-        let childNodeID = outgoers.map((node) => {
-            return node.id;
-        });
-        let childEdgeID = connectedEdges.map((edge) => {
-            return edge.id;
-        });
-
-        setNodes((node) => node.map(hide(hidden, childEdgeID, childNodeID)));
-        setEdges((edge) => edge.map(hide(hidden, childEdgeID, childNodeID)));
-        setHidden(!hidden);
-    };*/
-
     //Кнопки +/-
     const [buttonText, setButtonText] = useState('-');
-    const handleToolbarClick = () => {
+    const handleToolbarClick = (e) => {
         if (buttonText == "+")
             setButtonText('-');
         else if (buttonText == "-")
             setButtonText('+');
-        //const node = nodes.find(n => n.id === data.nodeId)
-        //nodeClick(node);
     };
-
-
 
     //салават
     const logo = _logo;
