@@ -195,9 +195,10 @@ namespace webapi.Controllers
         [HttpGet("GetInjectionOutTreeTable")]
         public IActionResult GetInjectionOutTreeTable(int productParkId, string selectedTipNpoIdsString)
         {
-            var selectedTipNpoIds = selectedTipNpoIdsString.Split(";").Select(x => Convert.ToInt32(x)).ToArray();
-            var acceptedTipNpoIds = GetAcceptedTipNpoIdArray(selectedTipNpoIds);
-            var resultDictionary = new Dictionary<string, ObjectNodeFormat[]>();
+            var selected_tip_npo_ids = selectedTipNpoIdsString.Split(";").Select(x => Convert.ToInt32(x)).ToArray();
+            var accepted_tip_npo_ids = GetAcceptedTipNpoIdArray(selected_tip_npo_ids);
+            var node_edge_dictionary = new Dictionary<string, ObjectNodeFormat[]>();
+            var middle_classification__nodes = new Dictionary<string, string[]>();
 
             // Получение всего товарного парка
             var foundTreeObjectTable = (from scheme in db.Schemes
@@ -241,7 +242,7 @@ namespace webapi.Controllers
                 foreach (var middleClassification in topClassification)
                 {
                     int[] middle_tip_npo_ids = middleClassification.Value.Select(x => x.Id).ToArray();
-                    int[] selected_middle_tip_npo_ids = middle_tip_npo_ids.Where(x => selectedTipNpoIds.Contains(x)).ToArray();
+                    int[] selected_middle_tip_npo_ids = middle_tip_npo_ids.Where(x => selected_tip_npo_ids.Contains(x)).ToArray();
 
                     if (selected_middle_tip_npo_ids.Count() == 0 || middle_tip_npo_ids.Count() == 0)
                         continue;
@@ -265,7 +266,7 @@ namespace webapi.Controllers
                         }
 
                         // Check parents for using in presentation
-                        while (!acceptedTipNpoIds.Contains(parent_npo_id) && parent_id != 0)
+                        while (!accepted_tip_npo_ids.Contains(parent_npo_id) && parent_id != 0)
                         {
                             var parent_object = foundTreeObjectTable.First(x => x.id == parent_id);
 
@@ -279,22 +280,23 @@ namespace webapi.Controllers
 
                     middleResult.Reverse();
 
-                    resultDictionary.Add(middleClassification.Key, middleResult);
+                    node_edge_dictionary.Add(middleClassification.Key, middleResult);
+                    middle_classification__nodes.Add(middleClassification.Key, middleResult.Select(object_ => object_.name).ToArray());
                 };
             }
 
-            var topClassifications = resultDictionary.Keys.Reverse().ToList();
+            var topClassifications = node_edge_dictionary.Keys.Reverse().ToList();
 
             // Сортировка по дереву в категориях
             for(int top_class_index = 0; top_class_index < topClassifications.Count(); top_class_index++)
             {
                 string top_classification_key = topClassifications[top_class_index];
-                ObjectNodeFormat[] objects = resultDictionary[top_classification_key];
+                ObjectNodeFormat[] objects = node_edge_dictionary[top_classification_key];
                 List<ObjectNodeFormat> sorted_objects = new List<ObjectNodeFormat>();
 
                 if (top_class_index == 0)
                 {
-                    resultDictionary[topClassifications[top_class_index]] = objects.OrderBy(x => x.id).ToArray();
+                    node_edge_dictionary[topClassifications[top_class_index]] = objects.OrderBy(x => x.id).ToArray();
 
                     continue;
                 }
@@ -304,7 +306,7 @@ namespace webapi.Controllers
 
                 while (sorted_objects_count < objects.Length && top_class_parent_index != -1)
                 {
-                    var parent_class_ids = resultDictionary[topClassifications[top_class_parent_index]].Select(x => x.id).ToList(); // Можно оптимизировать заменим на проверку по parent_npo_id из другой классификации
+                    var parent_class_ids = node_edge_dictionary[topClassifications[top_class_parent_index]].Select(x => x.id).ToList(); // Можно оптимизировать заменим на проверку по parent_npo_id из другой классификации
                     var objects_for_sort_parent_ids = objects.Where(x => parent_class_ids.Contains(x.parent_id));
 
                     objects_for_sort_parent_ids = objects_for_sort_parent_ids.OrderBy(object_ => parent_class_ids.IndexOf(object_.parent_id));
@@ -343,11 +345,18 @@ namespace webapi.Controllers
                     }
                 }
 
-                resultDictionary[top_classification_key] = sorted_objects.ToArray();
+                node_edge_dictionary[top_classification_key] = sorted_objects.ToArray();
             }
-
+            
             // Возрат результата
-            return Ok(resultDictionary);
+            return Ok(
+                (from s in new int[1]
+                       select new
+                       {
+                           node_edge_dictionary = node_edge_dictionary,
+                           middle_classification__nodes = middle_classification__nodes
+                       }).First()
+           );
         }
 
         [HttpGet("GetObjectInfo")]

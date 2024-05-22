@@ -6,7 +6,6 @@ import { CommunicationWithServer } from "../FunctionalClasses/CommunicationWithS
 import MyDiagram, { RadioGroup } from "../Components/Diagram/MyDiagram";
 import { CheckboxTreeWidget } from "../Components/CheckboxTree";
 import CustomInputDropdown from "../Components/CustomInputDropdown/CustomInputDropdown";
-//import CustomInputDropdown from "../Components/CustomInputDropdown";
 
 export class Home extends Component {
     constructor(props) {
@@ -21,7 +20,8 @@ export class Home extends Component {
             searchByObjectsFiltersKeys: null, searchByObjectsFilters: [],
             productParkTree: null, loadingProductParkTree: false,
             productParkTreeDiagram: null, productParkTreeDiagramLoading: false,
-            productParkTreeDiagramStructureKey: null
+            productParkTreeDiagramStructureKey: null,
+            middle_classification__nodes: null
         };
     }
 
@@ -101,13 +101,13 @@ export class Home extends Component {
 
         const data = await CommunicationWithServer.GetInjectionOutTreeTable(this.state.selectedTopProductParkId, this._child.current.getCheckedArray());
 
-        if (data != null) {
-            this.state.productParkTree = data;
+        if (data.node_edge_dictionary != null) {
+            this.state.productParkTree = data.node_edge_dictionary;
             {
                 let searchByObjectsFilters = {};
                 let searchByObjectsFiltersKeys = [];
 
-                for (let key in data) {
+                for (let key in data.node_edge_dictionary) {
                     searchByObjectsFiltersKeys.push(key);
                     searchByObjectsFilters[key] = "";
                 }
@@ -115,6 +115,8 @@ export class Home extends Component {
                 this.state.searchByObjectsFiltersKeys = searchByObjectsFiltersKeys;
                 this.state.searchByObjectsFilters = searchByObjectsFilters;
             }
+
+            this.state.middle_classification__nodes = data.middle_classification__nodes;
 
             this.renderProductParkDiagramArea();
         }
@@ -145,21 +147,15 @@ export class Home extends Component {
             this.renderProductParkDiagramArea();
         }
 
+        const update_array_search_by_key = (searchByObjectsFilters) => {
+            this.setState({ searchByObjectsFilters: searchByObjectsFilters });
+        };
+
         const radioGroupName = 'group1';
 
         const radioGroupOnClick = (key) => this.setState({ productParkTreeDiagramStructureKey: key });
 
         const handleClickLoad = () => this.enterAndLoadProductParkTree();
-
-        const handleOnInput = (e, key) => {
-            const value = e.target.value;
-            let searchByObjectsFilters = this.state.searchByObjectsFilters;
-
-            searchByObjectsFilters[key] = value;
-
-            this.setState({ searchByObjectsFilters: searchByObjectsFilters });
-        };
-
 
         return (
             <div className="content-container" >
@@ -212,14 +208,12 @@ export class Home extends Component {
                                                     {this.state.searchByObjectsFiltersKeys.map(key =>
                                                         <Col>
                                                             <Form.Group className="mb3">
-                                                                <Form.Control type="text" placeholder={key}
-                                                                    value={this.state.searchByObjectsFilters[key]}
-                                                                    onInput={(e) => handleOnInput(e, key)}
-                                                                />
+                                                                <CustomInputDropdown placeholder={key} updateArraySearchByKey={update_array_search_by_key}
+                                                                    value={this.state.searchByObjectsFilters} objectsToDropdown={this.state.middle_classification__nodes[key]} />
                                                             </Form.Group>
                                                         </Col>
                                                     )}
-                                                    
+
                                                     <Col xs="auto">
                                                         <Button className="mb-3 button"
                                                             variant="success"

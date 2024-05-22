@@ -6,42 +6,86 @@ export default class CustomInputDropdown extends Component {
     constructor(props) {
         super(props);
 
-        this._child = React.createRef();
-
-        this.state = {objectsToDropdown: props.objectsToDropdown};
+        this.state = {
+            objectsToDropdown: props.objectsToDropdown.map(objectToDropdown => [objectToDropdown, false]),
+            key: props.placeholder,
+            objectsToDropdownA: null
+        };
     }
 
+    async finterFunction(may_show = true){
+        let objectsToDropdown = this.state.objectsToDropdown;
+        let last_value = null, count_to_show = 0;
+
+
+        for (let i = 0; i < objectsToDropdown.length; i++) {
+            objectsToDropdown[i][1] = objectsToDropdown[i][0].includes(this.props.value[this.state.key]) && may_show;
+
+            if (objectsToDropdown[i][1]) {
+                count_to_show += 1;
+                last_value = objectsToDropdown[i];
+            }
+        }
+
+        if (count_to_show == 1 && last_value[0] == this.props.value[this.state.key]) {
+            last_value[1] = false;
+        }
+
+        this.setState({
+            objectsToDropdown: objectsToDropdown,
+            objectsToDropdownA: this.state.objectsToDropdown.map((objectToDropdown) =>
+                <a value={objectToDropdown[0]} onClick={e => this.selectedDropdownElement(objectToDropdown[0])} style={{ display: objectToDropdown[1] ? '' : 'none' }}>{objectToDropdown[0]}</a>
+            )
+        });
+    }
+
+    async onBlur(e) {
+        let objectsToDropdown = this.state.objectsToDropdown;
+
+        for (let i = 0; i < objectsToDropdown.length; i++) {
+            objectsToDropdown[i][1] = false;
+        }
+
+        await this.finterFunction(false);
+    };
+
+    async onFocus(e) {
+        let objectsToDropdown = this.state.objectsToDropdown;
+
+        for (let i = 0; i < objectsToDropdown.length; i++) {
+            objectsToDropdown[i][1] = true;
+        }
+
+        await this.finterFunction();
+    };
+
+    async selectedDropdownElement(value) {
+        this.props.value[this.state.key] = value;
+
+        this.props.updateArraySearchByKey(this.props.value);
+
+        await this.finterFunction();
+    }
+
+    async handleOnInput(value) {
+        this.props.value[this.state.key] = value;
+
+        this.props.updateArraySearchByKey(this.props.value);
+
+        await this.finterFunction();
+    };
+
     render() {
-        let value = "";
-        let objectsToDropdown = this.objectsToDropdown
-
-        const onFocus = (e) => {
-            finterFunction(e);
-        };
-
-        const onBlur = (e) => {
-            for (let i = 0; i < this.state.objectsToDropdown.length; i++) {
-                this.state.objectsToDropdown[i][2] = false
-            }
-        };
-
-        const finterFunction = (e) => {
-            for (let i = 0; i < this.state.objectsToDropdown.length; i++) {
-                this.state.objectsToDropdown[i][2] = this.state.objectsToDropdown[i][1].includes(value)
-            }
-        }
-
-        const selectedDropdownElement = (e) => {
-            value = "22"
-        }
+        let objectsToDropdownA = this.state.objectsToDropdownA;
+        let value_to_view = this.props.value[this.state.key];
 
         return (
             <div class="dropdown">
                 <div id="myDropdown" class="dropdown-content show">
-                    <input type="text" placeholder="Поиск.." id="myInput" onKeyUp={finterFunction} onBlur={onBlur} onFocus={onFocus} />
-                    {this.state.objectsToDropdown.map((objectToDropdown) =>
-                        <a value={objectToDropdown[0]} onClick={selectedDropdownElement} style={{ display: objectToDropdown[2] ? '' : 'none' }}>{objectToDropdown[1]}</a>
-                    )}
+                    <input type="text" value={value_to_view} onInput={(e) => this.handleOnInput(e.target.value)} placeholder={this.props.placehold} id="myInput" onKeyUp={e => this.handleOnInput(e.target.value)} onBlur={e => this.onBlur(e)} onFocus={e => this.onFocus(e)} />
+                    <div style={{ maxHeight: '300px', overflowY: 'scroll', whiteSpace: 'nowrap' }}>
+                        {objectsToDropdownA}
+                    </div>
                 </div>
             </div>
         );
