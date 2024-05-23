@@ -17,52 +17,11 @@ path.react-flow__edge-path:hover {
 }
 
 
-/*
-.react-flow {
-    --bg-color: rgb(17, 17, 17);
-    --text-color: rgb(243, 244, 246);
-    --node-border-radius: 10px;
-    --node-box-shadow: 10px 0 15px rgba(42, 138, 246, 0.3), -10px 0 15px rgba(233, 42, 103, 0.3);
-    background-color: var(--bg-color);
-    color: var(--text-color);
+.node-status-panel {
+    min-width: 200px;
+    background: #ccc;
+    padding: 5px;
+    padding-right: 20px;
+    border: solid 1px black;
+    float: left;
 }
-
-.react-flow__node-turbo {
-    border-radius: var(--node-border-radius);
-    display: flex;
-    height: 70px;
-    min-width: 150px;
-    font-family: 'Fira Mono', Monospace;
-    font-weight: 500;
-    letter-spacing: -0.2px;
-    box-shadow: var(--node-box-shadow);
-}
-
-    .react-flow__node-turbo .wrapper {
-        overflow: hidden;
-        display: flex;
-        padding: 2px;
-        position: relative;
-        border-radius: var(--node-border-radius);
-        flex-grow: 1;
-    }
-
-.gradient:before {
-    content: '';
-    position: absolute;
-    padding-bottom: calc(100% * 1.41421356237);
-    width: calc(100% * 1.41421356237);
-    background: conic-gradient( from -160deg at 50% 50%, #e92a67 0deg, #a853ba 120deg, #2a8af6 240deg, #e92a67 360deg );
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    border-radius: 100%;
-}
-
-.react-flow__node-turbo.selected .wrapper.gradient:before {
-    content: '';
-    background: conic-gradient( from -160deg at 50% 50%, #e92a67 0deg, #a853ba 120deg, #2a8af6 240deg, rgba(42, 138, 246, 0) 360deg );
-    animation: spinner 4s linear infinite;
-    transform: translate(-50%, -50%) rotate(0deg);
-    z-index: -1;
-}*/

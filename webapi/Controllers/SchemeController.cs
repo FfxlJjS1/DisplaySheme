@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Xml;
@@ -363,19 +364,46 @@ namespace webapi.Controllers
         public IActionResult GetObjectFullInfo(int objectId)
         {
             var result = (from scheme in db.Schemes
+                          join scw in db.Scws on scheme.NpoId equals scw.ScwId
                           where scheme.Id == objectId
                           select new
                           {
                               scheme.Id,
                               scheme.ParentId,
-                              TipNpoName = scheme.TipNpo.Name,
+                              TipNpoName = scheme.TipNpo.Name2,
                               scheme.FlSx,
                               scheme.Ctip,
                               scheme.Nam,
-                              scheme.NpoId
+                              scheme.NpoId,
+                              State = scw.Kat.Name2,
+                              Category = scw.PrSost.Name2
                           }).FirstOrDefault();
 
-            return Ok(result);
+            if (result == null)
+            {
+                return Ok(
+                    (from s in new int[1]
+                     select new
+                     {
+                         node_lines = new string[]{
+                             $"Id: {objectId}",
+                             "Fail to load"}
+                     }).First());
+            }
+
+            string[] result_text = {
+                    $"Id: {result.Id}",
+                    $"Name: {result.Nam}",
+                    $"TipNpoName: {result.TipNpoName}",
+                    $"State: {result.State}\n",
+                    $"Category: {result.Category}" };
+
+            return Ok(
+                (from s in new int[1]
+                 select new
+                 {
+                     node_lines = result_text
+                 }).First());
         }
     }
 }

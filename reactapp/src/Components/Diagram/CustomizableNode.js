@@ -1,14 +1,34 @@
-import { useState } from 'react';
+Ôªøimport { useState } from 'react';
 import { Handle, Position, NodeToolbar } from 'reactflow';
+import { CommunicationWithServer } from '../../FunctionalClasses/CommunicationWithServer';
 
 import './customizable.css';
+
+class GetObjectInfo {
+    async GetObjectInfo(node_id, set_node_panel_text) {
+        const data = await CommunicationWithServer.GetObjectFullInfo(node_id);
+
+        set_node_panel_text(
+            data.node_lines.map(line => 
+                <div><label htmlFor="text" style={{ marginTop: '5px' }}>{line}</label></div>
+            )
+        );
+    }
+};
 
 export function CustomizableNode({ data }) {
     const customizeProp = data.customize;
     const nodeWidth = data.width;
     const nodeHeight = data.height;
 
-    //—‡Î‡‚‡Ú
+    /*
+    1 - button clicked
+    2 - node clicked
+    */
+
+    data.action_type = 0;
+
+    //–°–∞–ª–∞–≤–∞—Ç
     let _logo = "";
     switch (data.tip_npo_id) {
         case 1:
@@ -29,35 +49,73 @@ export function CustomizableNode({ data }) {
             break;
     }
 
-    // ÌÓÔÍË +/-
-    const [buttonText, setButtonText] = useState('-');
+    //–ö–Ω–æ–ø–∫–∏ +/-
     const handleToolbarClick = (e) => {
-        if (buttonText == "+")
-            setButtonText('-');
-        else if (buttonText == "-")
-            setButtonText('+');
+        data.action_type = 1;
     };
 
-    //Ò‡Î‡‚‡Ú
+    const [toolbar_panel_position, change_panel_position] = useState(0);
+
+    const handleChangePanelPosition = (e) => {
+        change_panel_position((toolbar_panel_position + 1) % 4);
+    };
+
+    const [node_panel_text, set_node_panel_text] = useState(<div><label htmlFor="text" style={{ marginTop: '5px' }}>Reload</label></div>);
+
+    const handleReloadNodeInformation = (e) => {
+        let get_object_info = new GetObjectInfo();
+
+        get_object_info.GetObjectInfo(data.node_id, set_node_panel_text);
+    }
+
+    data.handleReloadNodeInformation = handleReloadNodeInformation;
+
+    //—Å–∞–ª–∞–≤–∞—Ç
     const logo = _logo;
     return (
         <>
-          <NodeToolbar isVisible={true} position={Position.Left}>
-                <button
-                    onClick={handleToolbarClick}
-                >{buttonText}</button>
+            <NodeToolbar position={
+                toolbar_panel_position == 0
+                    ? Position.Left
+                    : toolbar_panel_position == 1
+                        ? Position.Bottom
+                        : toolbar_panel_position == 2
+                            ? Position.Right
+                            : Position.Top
+                }>
+                <div className="node-status-panel">
+                    <div className="node-button-panel-area">
+                        <button onClick={handleToolbarClick}>
+                            {data.hidden ? "+" : "-"}
+                        </button>
+                        <button onClick={handleChangePanelPosition}>
+                            {
+                                toolbar_panel_position == 2
+                                    ? "‚Üñ"
+                                    : toolbar_panel_position == 3
+                                        ? "‚Üô"
+                                        : toolbar_panel_position == 1
+                                            ? "‚Üó"
+                                            : "‚Üò"
+                            }
+                        </button>
+                        <button onClick={handleReloadNodeInformation}>‚Üª</button>
+                    </div>
+
+                    {node_panel_text }
+                </div>
             </NodeToolbar>
 
-            <div className="customizable-node" style={{width: nodeWidth, height: nodeHeight}}>
+            <div className="customizable-node" style={{ width: nodeWidth, height: nodeHeight }}>
                 {customizeProp[0] ? <Handle type="target" position={Position.Right} /> : null}
-                {customizeProp[1] ? <Handle type="target" position={Position.Bottom} /> : null}
-                <div style={{ display: 'flex'}} >
-                    <img src={logo} alt="" width="30" height="30" />
-                    <label htmlFor="text" style={{ marginLeft: 10, marginTop: 4 }} >{data.label}</label>
-                </div>
                 {customizeProp[2] ? <Handle type="source" position={Position.Left} /> : null}
-                {customizeProp[3] ? <Handle type="source" position={Position.Top} /> : null}
+                {customizeProp[1] ? <Handle type="source" position={Position.Bottom} /> : null}
+                <div style={{ display: 'flex' }} >
+                    <img src={logo} alt="" width="30" height="30" />
+                    <label htmlFor="text" style={{ marginLeft: 10, marginTop: 4, whiteSpace: 'nowrap' }} >{data.label}</label>
                 </div>
+                {customizeProp[3] ? <Handle type="target" position={Position.Top} /> : null}
+            </div>
         </>
     );
 }

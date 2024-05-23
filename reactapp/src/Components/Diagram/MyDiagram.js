@@ -187,6 +187,7 @@ function MyDiagram(props) {
                         width: nodeWidth,
                         height: nodeHeight,
                         tip_npo_id: object.tip_npo_id,
+                        node_id: object.id,
                     },
                     parentNode: localKey,
                     extent: 'parent',
@@ -282,10 +283,10 @@ function MyDiagram(props) {
                             width: nodeWidth,
                             height: nodeHeight,
                             tip_npo_id: node.tip_npo_id,
-
+                            node_id: node.id,
                         },
                         type: 'customizable',
-                        position: { x: nodeXPos, y: local_node_y_pos }
+                        position: { x: nodeXPos, y: local_node_y_pos },
                     });
 
                     initialEdges.push({
@@ -327,6 +328,7 @@ function MyDiagram(props) {
     // Setting react flow scheme
     const [nodes, setNodes] = useState(initialNodes);
     const [edges, setEdges] = useState(initialEdges);
+
     //салават
     const [hidden, setHidden] = useState(true);
     const hide = (hidden, childEdgeID, childNodeID) => (nodeOrEdge) => {
@@ -350,35 +352,50 @@ function MyDiagram(props) {
     let stack = [];
         
     const nodeClick = (some, node) => {
-        let currentNodeID = node.id;
-        stack.push(node);
-        while (stack.length > 0) {
-            let lastNOde = stack.pop();
-            let childnode = getOutgoers(lastNOde, nodes, edges);
-            let childedge = checkTarget(
-                getConnectedEdges([lastNOde], edges),
-                currentNodeID
-            );
-            childnode.map((goer, key) => {
-                stack.push(goer);
-                outgoers.push(goer);
+        if (node.data.action_type == 0) {
+            node.data.handleReloadNodeInformation(null);
+        }
+        else if (node.data.action_type == 1) {
+            let currentNodeID = node.id;
+
+            stack.push(node);
+
+            while (stack.length > 0) {
+                let lastNOde = stack.pop();
+                let childnode = getOutgoers(lastNOde, nodes, edges);
+
+                let childedge = checkTarget(
+                    getConnectedEdges([lastNOde], edges),
+                    currentNodeID
+                );
+
+                childnode.map((goer, key) => {
+                    stack.push(goer);
+                    outgoers.push(goer);
+                });
+
+                childedge.map((edge, key) => {
+                    connectedEdges.push(edge);
+                });
+            }
+
+            let childNodeID = outgoers.map((node) => {
+                return node.id;
             });
-            childedge.map((edge, key) => {
-                connectedEdges.push(edge);
+
+            let childEdgeID = connectedEdges.map((edge) => {
+                return edge.id;
             });
+
+            setNodes((node) => node.map(hide(hidden, childEdgeID, childNodeID)));
+            setEdges((edge) => edge.map(hide(hidden, childEdgeID, childNodeID)));
+
+            setHidden(!hidden);
+
+            node.data.hidden = !node.data.hidden;
         }
 
-        let childNodeID = outgoers.map((node) => {
-            return node.id;
-        });
-        let childEdgeID = connectedEdges.map((edge) => {
-            return edge.id;
-        });
-
-        setNodes((node) => node.map(hide(hidden, childEdgeID, childNodeID)));
-        setEdges((edge) => edge.map(hide(hidden, childEdgeID, childNodeID)));
-
-        setHidden(!hidden);
+        node.data.action_type = 0;
     };
 
     const onNodesChange = useCallback(
