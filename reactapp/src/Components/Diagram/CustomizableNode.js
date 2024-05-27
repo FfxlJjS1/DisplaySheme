@@ -49,6 +49,13 @@ export function CustomizableNode({ data }) {
             break;
     }
 
+    // Focus and blur node
+    const [panel_visible_state, set_focus_state] = useState(false);
+
+    const onFocusToChangePanelVisible = (e) => {
+        set_focus_state(!panel_visible_state);
+    }
+
     //Кнопки +/-
     const handleToolbarClick = (e) => {
         data.action_type = 1;
@@ -61,6 +68,8 @@ export function CustomizableNode({ data }) {
     };
 
     const [node_panel_text, set_node_panel_text] = useState(<div><label htmlFor="text" style={{ marginTop: '5px' }}>Reload</label></div>);
+
+
 
     const handleReloadNodeInformation = (e) => {
         let get_object_info = new GetObjectInfo();
@@ -82,8 +91,8 @@ export function CustomizableNode({ data }) {
                         : toolbar_panel_position == 2
                             ? Position.Right
                             : Position.Top
-                }>
-                <div className="node-status-panel">
+            } isVisible={true}>
+                <div className="node-status-panel" style={{ display: panel_visible_state ? '' : 'none' }}>
                     <div className="node-button-panel-area">
                         <button onClick={handleToolbarClick}>
                             {data.hidden ? "+" : "-"}
@@ -104,9 +113,14 @@ export function CustomizableNode({ data }) {
 
                     {node_panel_text }
                 </div>
+                <div style={{ display: !panel_visible_state ? '' : 'none' }}>
+                    <button onClick={handleToolbarClick}>
+                        {data.hidden ? "+" : "-"}
+                    </button>
+                </div>
             </NodeToolbar>
 
-            <div className="customizable-node" style={{ width: nodeWidth, height: nodeHeight }}>
+            <div className="customizable-node" style={{ width: nodeWidth, height: nodeHeight }} onClick={onFocusToChangePanelVisible }>
                 {customizeProp[0] ? <Handle type="target" position={Position.Right} /> : null}
                 {customizeProp[2] ? <Handle type="source" position={Position.Left} /> : null}
                 {customizeProp[1] ? <Handle type="source" position={Position.Bottom} /> : null}
