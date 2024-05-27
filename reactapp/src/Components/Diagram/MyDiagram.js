@@ -188,6 +188,7 @@ function MyDiagram(props) {
                         height: nodeHeight,
                         tip_npo_id: object.tip_npo_id,
                         node_id: object.id,
+                        hidden: false,
                     },
                     parentNode: localKey,
                     extent: 'parent',
@@ -284,6 +285,7 @@ function MyDiagram(props) {
                             height: nodeHeight,
                             tip_npo_id: node.tip_npo_id,
                             node_id: node.id,
+                            hidden: false,
                         },
                         type: 'customizable',
                         position: { x: nodeXPos, y: local_node_y_pos },
@@ -330,7 +332,6 @@ function MyDiagram(props) {
     const [edges, setEdges] = useState(initialEdges);
 
     //салават
-    const [hidden, setHidden] = useState(true);
     const hide = (hidden, childEdgeID, childNodeID) => (nodeOrEdge) => {
         if (
             childEdgeID.includes(nodeOrEdge.id) ||
@@ -347,11 +348,17 @@ function MyDiagram(props) {
         return edges;
     };
 
+    let isChangingByNodeClick = false;
     let outgoers = [];
     let connectedEdges = [];
     let stack = [];
         
     const nodeClick = (some, node) => {
+        if (isChangingByNodeClick)
+            return;
+
+        isChangingByNodeClick = true;
+
         if (node.data.action_type == 0) {
             node.data.handleReloadNodeInformation(null);
         }
@@ -387,15 +394,17 @@ function MyDiagram(props) {
                 return edge.id;
             });
 
-            setNodes((node) => node.map(hide(hidden, childEdgeID, childNodeID)));
-            setEdges((edge) => edge.map(hide(hidden, childEdgeID, childNodeID)));
+            const hidden = node.data.hidden == undefined ? false : node.data.hidden;
 
-            setHidden(!hidden);
+            setNodes((node) => node.map(hide(!hidden, childEdgeID, childNodeID)));
+            setEdges((edge) => edge.map(hide(!hidden, childEdgeID, childNodeID)));
 
-            node.data.hidden = !node.data.hidden;
+            node.data.hidden = !hidden;
         }
 
         node.data.action_type = 0;
+
+        isChangingByNodeClick = false;
     };
 
     const onNodesChange = useCallback(
@@ -420,8 +429,6 @@ function MyDiagram(props) {
         background: '#fff',
     };
 
-    //const [label, setLabel] = useState(props.data.tip_npo_id);
-
     return (
         <div style={{ height: 500, width: 1200 }}>
             <ReactFlow
@@ -432,7 +439,6 @@ function MyDiagram(props) {
                 nodeTypes={nodeTypes}
                 style={rfStyle}
                 onNodeClick={nodeClick}
-                //NodeToolbar={onclick}
             >
                 <Background color="#fff" variant="dots" />
                 <MiniMap
