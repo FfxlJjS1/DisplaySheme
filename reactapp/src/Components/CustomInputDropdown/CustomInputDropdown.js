@@ -84,7 +84,7 @@ export default class CustomInputDropdown extends Component {
         return (
             <div class="dropdown">
                 <div id="myDropdown" class="dropdown-content show">
-                    <input type="text" value={value_to_view} onInput={(e) => this.handleOnInput(e.target.value)} placeholder={this.props.placehold} id="myInput" onKeyUp={e => this.handleOnInput(e.target.value)} onBlur={e => this.onBlur(e)} onFocus={e => this.onFocus(e)} />
+                    <input type="text" value={value_to_view} onInput={(e) => this.handleOnInput(e.target.value)} placeholder={this.props.placeholder} id="myInput" onKeyUp={e => this.handleOnInput(e.target.value)} onBlur={e => this.onBlur(e)} onFocus={e => this.onFocus(e)} />
                     <div style={{ maxHeight: '300px', overflowY: 'scroll', whiteSpace: 'nowrap' }}>
                         {objectsToDropdownA}
                     </div>
