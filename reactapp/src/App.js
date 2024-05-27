@@ -2,7 +2,6 @@ import React from 'react';
 
 import './App.css';
 
-import { Home } from './Pages/Home';
 import Fotter from "./Components/Footer";
 
 import 'bootstrap/dist/css/bootstrap.min.css';

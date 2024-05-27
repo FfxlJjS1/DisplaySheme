@@ -1,5 +1,5 @@
 import React, { Component } from "react"
-import { Navbar, Nav, Container, DropdownButton } from 'react-bootstrap'
+import { Navbar, Nav, Container } from 'react-bootstrap'
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 
 //import logo from './logo.png'
@@ -7,7 +7,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import logo from './logo3.svg'
 
 import { Home } from "../Pages/Home"
-import DropdownItem from "react-bootstrap/esm/DropdownItem"
 
 export default class Header extends Component {
     constructor(props) {

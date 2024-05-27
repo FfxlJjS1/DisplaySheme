@@ -13,17 +13,19 @@ export default class CustomInputDropdown extends Component {
         };
     }
 
-    async finterFunction(may_show = true){
+    async finterFunction(need_to_recount = true){
         let objectsToDropdown = this.state.objectsToDropdown;
         let last_value = null, count_to_show = 0;
 
 
-        for (let i = 0; i < objectsToDropdown.length; i++) {
-            objectsToDropdown[i][1] = objectsToDropdown[i][0].includes(this.props.value[this.state.key]) && may_show;
+        if (need_to_recount) {
+            for (let i = 0; i < objectsToDropdown.length; i++) {
+                objectsToDropdown[i][1] = objectsToDropdown[i][0].includes(this.props.value[this.state.key]);
 
-            if (objectsToDropdown[i][1]) {
-                count_to_show += 1;
-                last_value = objectsToDropdown[i];
+                if (objectsToDropdown[i][1]) {
+                    count_to_show += 1;
+                    last_value = objectsToDropdown[i];
+                }
             }
         }
 
@@ -31,10 +33,10 @@ export default class CustomInputDropdown extends Component {
             last_value[1] = false;
         }
 
-        this.setState({
+        await this.setState({
             objectsToDropdown: objectsToDropdown,
             objectsToDropdownA: this.state.objectsToDropdown.map((objectToDropdown) =>
-                <a value={objectToDropdown[0]} onClick={e => this.selectedDropdownElement(objectToDropdown[0])} style={{ display: objectToDropdown[1] ? '' : 'none' }}>{objectToDropdown[0]}</a>
+                <a value={objectToDropdown[0]} onMouseDown={e => this.selectedDropdownElement(objectToDropdown[0]) } style={{ display: objectToDropdown[1] ? '' : 'none' }}>{objectToDropdown[0]}</a>
             )
         });
     }
