@@ -282,7 +282,7 @@ namespace webapi.Controllers
                     middleResult.Reverse();
 
                     node_edge_dictionary.Add(middleClassification.Key, middleResult);
-                    middle_classification__nodes.Add(middleClassification.Key, middleResult.Select(object_ => object_.name).ToArray());
+                    middle_classification__nodes.Add(middleClassification.Key, middleResult.Select(object_ => object_.full_name).ToArray());
                 };
             }
 
@@ -364,7 +364,8 @@ namespace webapi.Controllers
         public IActionResult GetObjectFullInfo(int objectId)
         {
             var result = (from scheme in db.Schemes
-                          join scw in db.Scws on scheme.NpoId equals scw.ScwId
+                          join scw in db.Scws on scheme.NpoId equals scw.ScwId into scw_data
+                          from scw in scw_data.DefaultIfEmpty()
                           where scheme.Id == objectId
                           select new
                           {
@@ -375,8 +376,8 @@ namespace webapi.Controllers
                               scheme.Ctip,
                               scheme.Nam,
                               scheme.NpoId,
-                              State = scw.Kat.Name2,
-                              Category = scw.PrSost.Name2
+                              Category = scw != null && scheme.TipNpoId == 1 ? scw.Kat.Name2 : "Нет данных",
+                              State = scw != null && scheme.TipNpoId == 1 ? scw.PrSost.Name2 : "Нет данных"
                           }).FirstOrDefault();
 
             if (result == null)
@@ -393,10 +394,10 @@ namespace webapi.Controllers
 
             string[] result_text = {
                     $"Id: {result.Id}",
-                    $"Name: {result.Nam}",
-                    $"TipNpoName: {result.TipNpoName}",
-                    $"State: {result.State}\n",
-                    $"Category: {result.Category}" };
+                    $"Название: {result.Nam}",
+                    $"Тип: {result.TipNpoName}",
+                    $"Категория: {result.Category}\n",
+                    $"Статус: {result.State}" };
 
             return Ok(
                 (from s in new int[1]
