@@ -166,7 +166,7 @@ function MyDiagram(props) {
             // Add group node
             initialNodes.push({
                 id: localKey,
-                data: { label: localKey },
+                data: { label: localKey, isGroupNode: true },
                 position: { x: groupXPos, y: groupYPos },
                 style: { backgroundColor: 'rgba(8, 164, 116, 0.4)', width: groupWidth, height: groupHeight, fontSize: 15, color: '#fff', fontWeight: 'bold' }
             });
@@ -354,7 +354,7 @@ function MyDiagram(props) {
     let stack = [];
         
     const nodeClick = (some, node) => {
-        if (isChangingByNodeClick)
+        if (isChangingByNodeClick || node.data.isGroupNode == true)
             return;
 
         isChangingByNodeClick = true;

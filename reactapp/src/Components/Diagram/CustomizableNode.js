@@ -91,7 +91,7 @@ export function CustomizableNode({ data }) {
                         : toolbar_panel_position == 2
                             ? Position.Right
                             : Position.Top
-            } isVisible={true}>
+            } isVisible={data.isGroupNode != true ? true : false}>
                 <div className="node-status-panel" style={{ display: panel_visible_state ? '' : 'none' }}>
                     <div className="node-button-panel-area">
                         <button onClick={handleToolbarClick}>
