@@ -1,5 +1,6 @@
 ﻿import { useState } from 'react';
 import { Handle, Position, NodeToolbar } from 'reactflow';
+import { Container, Col, Row } from "react-bootstrap";
 import { CommunicationWithServer } from '../../FunctionalClasses/CommunicationWithServer';
 
 import './customizable.css';
@@ -9,7 +10,7 @@ class GetObjectInfo {
         const data = await CommunicationWithServer.GetObjectFullInfo(node_id);
 
         set_node_panel_text(
-            data.node_lines.map(line => 
+            data.node_lines.map(line =>
                 <div><label htmlFor="text" style={{ marginTop: '5px' }}>{line}</label></div>
             )
         );
@@ -93,29 +94,41 @@ export function CustomizableNode({ data }) {
                         : toolbar_panel_position == 2
                             ? Position.Right
                             : Position.Top
-            } isVisible={data.isGroupNode != true ? true : false}>
-                <div className="node-status-panel" style={{ display: panel_visible_state ? '' : 'none' }}>
-                    <div className="node-button-panel-area">
-                        <button onClick={handleCloseNodePanel}>✕</button>
-                        <button onClick={handleToolbarClick}>
-                            {data.hidden ? "+" : "-"}
-                        </button>
-                        <button onClick={handleChangePanelPosition}>
-                            {
-                                toolbar_panel_position == 2
-                                    ? "↖"
-                                    : toolbar_panel_position == 3
-                                        ? "↙"
-                                        : toolbar_panel_position == 1
-                                            ? "↗"
-                                            : "↘"
-                            }
-                        </button>
-                        <button onClick={handleReloadNodeInformation}>↻</button>
-                    </div>
+            } isVisible={data.isGroupNode != true ? true : false} style={{zIndex: 3} }>
+                <Container className="node-status-panel" style={{ display: panel_visible_state ? '' : 'none', paddingRight: "0px" }}>
+                    <Row className="node-button-panel-area">
+                        <Col md="auto">
+                            <button onClick={handleToolbarClick}>
+                                {data.hidden ? "+" : "-"}
+                            </button>
+                        </Col>
+                        <Col md="auto">
+                            <button onClick={handleChangePanelPosition}>
+                                {
+                                    toolbar_panel_position == 2
+                                        ? "↖"
+                                        : toolbar_panel_position == 3
+                                            ? "↙"
+                                            : toolbar_panel_position == 1
+                                                ? "↗"
+                                                : "↘"
+                                }
+                            </button>
+                        </Col>
+                        <Col md="auto">
+                            <button onClick={handleReloadNodeInformation}>↻</button>
+                        </Col>
+                        <Col md="auto">
+                            <button onClick={handleCloseNodePanel} style={{ display: "flex", justifyContent: "right", }}>✕</button>
+                        </Col>
+                    </Row>
 
-                    {node_panel_text}
-                </div>
+                    <Row>
+                    <Col md="auto">
+                            {node_panel_text}
+                        </Col>
+                    </Row>
+                </Container>
                 <div style={{ display: !panel_visible_state ? '' : 'none' }}>
                     <button onClick={handleToolbarClick}>
                         {data.hidden ? "+" : "-"}
