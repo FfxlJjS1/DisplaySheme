@@ -205,25 +205,27 @@ export class Home extends Component {
                                             <Row className="mt-2">
                                                 <Row>Параметры фильтрации</Row>
                                                 <Row className="mt-2">
-                                                    {this.state.searchByObjectsFiltersKeys.map(key =>
-                                                        <Col>
-                                                            <Form.Group className="mb3">
-                                                                <CustomInputDropdown placeholder={key} updateArraySearchByKey={update_array_search_by_key}
-                                                                    value={this.state.searchByObjectsFilters} objectsToDropdown={this.state.middle_classification__nodes[key]} />
-                                                            </Form.Group>
-                                                        </Col>
-                                                    )}
+                                                    <Row>
+                                                        {this.state.searchByObjectsFiltersKeys.map(key =>
+                                                            <Col>
+                                                                <Form.Group className="">
+                                                                    <CustomInputDropdown placeholder={key} updateArraySearchByKey={update_array_search_by_key}
+                                                                        value={this.state.searchByObjectsFilters} objectsToDropdown={this.state.middle_classification__nodes[key]} />
+                                                                </Form.Group>
+                                                            </Col>
+                                                        )}
 
-                                                    <Col xs="auto">
-                                                        <Button className="mb-3 button"
-                                                            variant="success"
-                                                            type="button"
-                                                            style={{ backgroundColor: '#038e64', }}
-                                                            onClick={() => this.setState({ productParkTreeDiagramLoading: true })}
-                                                            disabled={this.state.productParkTreeDiagramLoading}>
-                                                            Поиск
-                                                        </Button>
-                                                    </Col>
+                                                        <Col>
+                                                            <Button className="mb-3 button"
+                                                                variant="success"
+                                                                type="button"
+                                                                style={{ backgroundColor: '#038e64', }}
+                                                                onClick={() => this.setState({ productParkTreeDiagramLoading: true })}
+                                                                disabled={this.state.productParkTreeDiagramLoading}>
+                                                                Поиск
+                                                            </Button>
+                                                        </Col>
+                                                    </Row>
                                                 </Row>
                                             </Row>
                                         </Row>)

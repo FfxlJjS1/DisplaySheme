@@ -69,7 +69,7 @@ namespace webapi.Controllers
                         tipNpos.First(x => x.TipNpoId == 10).Name,
                         tipNpos.First(x => x.TipNpoId == 10).Name2)
                     }
-                }/*,
+                },
                 { "Неопределенное", new DownClassificationLevel[] {
                     new DownClassificationLevel(2,
                         tipNpos.First(x => x.TipNpoId == 2).Name,
@@ -102,7 +102,7 @@ namespace webapi.Controllers
                         tipNpos.First(x => x.TipNpoId == 27).Name,
                         tipNpos.First(x => x.TipNpoId == 27).Name2)
                     }
-                }*/
+                }
             };
 
             _injectionInOutClassification.Add("Объекты схемы сбора", injectionOutGroupObjects);

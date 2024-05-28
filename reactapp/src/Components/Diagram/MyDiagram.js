@@ -430,7 +430,7 @@ function MyDiagram(props) {
     };
 
     return (
-        <div style={{ height: 500, width: 1200 }}>
+        <div style={{ height: 500, width: "100%" }}>
             <ReactFlow
                 nodes={nodes}
                 onNodesChange={onNodesChange}
