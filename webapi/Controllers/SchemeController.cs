@@ -131,7 +131,7 @@ namespace webapi.Controllers
                     }
                 };
 
-                _injectionInOutClassification.Add("Объекты схемы закачки", injectionOutGroupObjects);
+                _injectionInOutClassification.Add("Объекты ППД", injectionOutGroupObjects);
             }
         }
 

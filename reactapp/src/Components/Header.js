@@ -30,7 +30,7 @@ export default class Header extends Component {
                         <Navbar.Collapse id="responsive-navbar-nav"  >
                             <Nav className="me-auto"  >
                                 <Nav.Link style={{ color: "#fff", fontWeight: 'bold', fontSize: 15, textAlign: 'left', border: 'solid', borderStyle: 'dotted', margin: "5px", padding: "3px" }} href="/"> Схема сбора </Nav.Link>
-                                <Nav.Link style={{ color: "#fff", fontWeight: 'bold', fontSize: 15, textAlign: 'left', border: 'solid', borderStyle: 'dotted', margin: "5px", padding: "3px" }} href="/Home_2"> Схема закачки </Nav.Link>
+                                <Nav.Link style={{ color: "#fff", fontWeight: 'bold', fontSize: 15, textAlign: 'left', border: 'solid', borderStyle: 'dotted', margin: "5px", padding: "3px" }} href="/Home_2"> Схема ППД </Nav.Link>
                             </Nav>
                         </Navbar.Collapse>
                     </Container>
