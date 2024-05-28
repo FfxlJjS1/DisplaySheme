@@ -111,7 +111,7 @@ export function CustomizableNode({ data }) {
                         <button onClick={handleReloadNodeInformation}>↻</button>
                     </div>
 
-                    {node_panel_text }
+                    {node_panel_text}
                 </div>
                 <div style={{ display: !panel_visible_state ? '' : 'none' }}>
                     <button onClick={handleToolbarClick}>
@@ -120,15 +120,15 @@ export function CustomizableNode({ data }) {
                 </div>
             </NodeToolbar>
 
-            <div className="customizable-node" style={{ width: nodeWidth, height: nodeHeight }} onClick={onFocusToChangePanelVisible }>
+            <div className="customizable-node" style={{ width: nodeWidth, height: nodeHeight }} onClick={onFocusToChangePanelVisible}>
                 {customizeProp[0] ? <Handle type="target" position={Position.Right} /> : null}
                 {customizeProp[2] ? <Handle type="source" position={Position.Left} /> : null}
                 {customizeProp[1] ? <Handle type="source" position={Position.Bottom} /> : null}
+                {customizeProp[3] ? <Handle type="target" position={Position.Top} /> : null}
                 <div style={{ display: 'flex' }} >
                     <img src={logo} alt="" width="30" height="30" />
                     <label htmlFor="text" style={{ marginLeft: 10, marginTop: 4, whiteSpace: 'nowrap' }} >{data.label}</label>
                 </div>
-                {customizeProp[3] ? <Handle type="target" position={Position.Top} /> : null}
             </div>
         </>
     );

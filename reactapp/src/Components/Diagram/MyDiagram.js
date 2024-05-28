@@ -137,7 +137,6 @@ function MyDiagram(props) {
         table = filteredTable;
     }
 
-
     // Setting groups, nodes and edges parametrs
     let initialNodes = [];
     let initialEdges = [];
@@ -189,6 +188,7 @@ function MyDiagram(props) {
                         tip_npo_id: object.tip_npo_id,
                         node_id: object.id,
                         hidden: false,
+                        left_to_right: props.left_to_right,
                     },
                     parentNode: localKey,
                     extent: 'parent',
@@ -286,6 +286,7 @@ function MyDiagram(props) {
                             tip_npo_id: node.tip_npo_id,
                             node_id: node.id,
                             hidden: false,
+                            left_to_right: props.left_to_right,
                         },
                         type: 'customizable',
                         position: { x: nodeXPos, y: local_node_y_pos },
@@ -429,6 +430,9 @@ function MyDiagram(props) {
         background: '#fff',
     };
 
+    const [isDraggable, setIsDraggable] = useState(false);
+    const [isSelectable, setIsSelectable] = useState(false);
+
     return (
         <div style={{ height: 550, width: 1200 }}>
             <ReactFlow
@@ -439,6 +443,9 @@ function MyDiagram(props) {
                 nodeTypes={nodeTypes}
                 style={rfStyle}
                 onNodeClick={nodeClick}
+                elementsSelectable={isSelectable}
+                nodesDraggable={isDraggable}
+                nodesConnectable={false}
             >
                 <Background color="#fff" variant="dots" />
                 <MiniMap
@@ -446,7 +453,7 @@ function MyDiagram(props) {
                     nodeColor={nodeColor}
                     nodeStrokeWidth={3}
                     pannable zoomable />
-                <Controls  />
+                <Controls />
 
             </ReactFlow>
         </div>

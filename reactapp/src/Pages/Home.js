@@ -33,7 +33,7 @@ export class Home extends Component {
     async loadTopProductParkList() {
         this.setState({ topProductParkList: null, loadingTopProductParkList: true });
 
-        const data = await CommunicationWithServer.GetParentInjectionOutList();
+        const data = await CommunicationWithServer.GetParentInjectionOutList(this.props.is_injection_in_classification);
 
         if (data != null) {
             this.setState({ topProductParkList: data, selectedTopProductParkId: data[0].id });
@@ -47,7 +47,7 @@ export class Home extends Component {
         let nodes = [];
         let dirtyId = 0;
 
-        const data = await CommunicationWithServer.GetInjectionInOutClassification();
+        const data = await CommunicationWithServer.GetInjectionInOutClassification(this.props.is_injection_in_classification);
 
         if (data != null) {
             for (const topKey in data) {
@@ -99,7 +99,9 @@ export class Home extends Component {
     async enterAndLoadProductParkTree() {
         this.setState({ searchByObjectsFiltersKeys: null, productParkTree: null, loadingProductParkTree: true });
 
-        const data = await CommunicationWithServer.GetInjectionOutTreeTable(this.state.selectedTopProductParkId, this._child.current.getCheckedArray());
+        const data = this.props.is_injection_in_classification
+            ? await CommunicationWithServer.GetInjectionOutTreeTable(this.state.selectedTopProductParkId, this._child.current.getCheckedArray())
+            : await CommunicationWithServer.GetInjectionInTreeTable(this.state.selectedTopProductParkId, this._child.current.getCheckedArray());
 
         if (data.node_edge_dictionary != null) {
             this.state.productParkTree = data.node_edge_dictionary;
@@ -129,7 +131,7 @@ export class Home extends Component {
 
         this.setState({
             productParkTreeDiagram:
-                <MyDiagram table={this.state.productParkTree} diagramStructureKey={this.state.productParkTreeDiagramStructureKey} searchByObjectsFilters={this.state.searchByObjectsFilters} />
+                <MyDiagram left_to_right={this.props.is_injection_in_classification} table={this.state.productParkTree} diagramStructureKey={this.state.productParkTreeDiagramStructureKey} searchByObjectsFilters={this.state.searchByObjectsFilters} />
         });
 
         this.setState({ productParkTreeDiagramLoading: false });

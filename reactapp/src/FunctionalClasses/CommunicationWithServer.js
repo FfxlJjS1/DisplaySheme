@@ -25,8 +25,8 @@ export class CommunicationWithServer {
         return data;
     }
 
-    static async GetInjectionInOutClassification() {
-        const data = this.GetRequest(this.schemeApi + "/GetInjectionInOutClassification");
+    static async GetInjectionInOutClassification(is_injection_in_classification) {
+        const data = this.GetRequest(this.schemeApi + "/GetInjectionInOutClassification?is_injection_in_classification=" + is_injection_in_classification);
 
         return data;
     }
@@ -39,6 +39,19 @@ export class CommunicationWithServer {
         }
 
         const data = this.GetRequest(this.schemeApi + "/GetInjectionOutTreeTable?productParkId=" + productParkId
+            + "&selectedTipNpoIdsString=" + selectedTipNpoIdsString); // 1;2;3;4;5;6;7;10;11;12;13;14;16;25;26;27
+
+        return data;
+    }
+
+    static async GetInjectionInTreeTable(productParkId, selectedTipNpoIds) {
+        let selectedTipNpoIdsString = selectedTipNpoIds.join(';');
+
+        if (selectedTipNpoIdsString == "") {
+            selectedTipNpoIdsString = "0";
+        }
+
+        const data = this.GetRequest(this.schemeApi + "/GetInjectionInTreeTable?productParkId=" + productParkId
             + "&selectedTipNpoIdsString=" + selectedTipNpoIdsString); // 1;2;3;4;5;6;7;10;11;12;13;14;16;25;26;27
 
         return data;
