@@ -125,14 +125,14 @@ export class Home extends Component {
     }
 
     async renderProductParkDiagramArea() {
-        this.setState({ productParkTreeDiagramLoading: true});
+        this.setState({ productParkTreeDiagramLoading: true });
 
         this.setState({
             productParkTreeDiagram:
                 <MyDiagram table={this.state.productParkTree} diagramStructureKey={this.state.productParkTreeDiagramStructureKey} searchByObjectsFilters={this.state.searchByObjectsFilters} />
         });
 
-        this.setState({ productParkTreeDiagramLoading: false});
+        this.setState({ productParkTreeDiagramLoading: false });
     }
 
     render() {
@@ -161,7 +161,7 @@ export class Home extends Component {
             <div className="content-container" >
                 <Container fluid>
                     <Row>
-                        <Col>
+                        <Col xs="auto">
                             <Form>
                                 <Form.Group className="mb-3"
                                     value={this.state.selectedTopProductParkId}
@@ -190,7 +190,7 @@ export class Home extends Component {
                                 <Button className="mt-3 mb-3 button" type="button"
                                     variant="success"
                                     disabled={this.state.loadingProductParkTree || this.state.selectedTopProductParkId <= 0 || this.state.productParkTreeDiagramStructureKey == null}
-                                    style={{backgroundColor: '#038e64',}}
+                                    style={{ backgroundColor: '#038e64', }}
                                     onClick={handleClickLoad}>
                                     {!this.state.loadingProductParkTree ? "Отобразить" : "Загружается"}
                                 </Button>
@@ -207,23 +207,25 @@ export class Home extends Component {
                                                 <Row className="mt-2">
                                                     <Row>
                                                         {this.state.searchByObjectsFiltersKeys.map(key =>
-                                                            <Col>
-                                                                <Form.Group className="">
+                                                            <Col className="mb-3">
+                                                                <Form.Group>
                                                                     <CustomInputDropdown placeholder={key} updateArraySearchByKey={update_array_search_by_key}
                                                                         value={this.state.searchByObjectsFilters} objectsToDropdown={this.state.middle_classification__nodes[key]} />
                                                                 </Form.Group>
                                                             </Col>
                                                         )}
 
-                                                        <Col>
-                                                            <Button className="mb-3 button"
-                                                                variant="success"
-                                                                type="button"
-                                                                style={{ backgroundColor: '#038e64', }}
-                                                                onClick={() => this.setState({ productParkTreeDiagramLoading: true })}
-                                                                disabled={this.state.productParkTreeDiagramLoading}>
-                                                                Поиск
-                                                            </Button>
+                                                        <Col md="auto" className="mb-3">
+                                                            <Form.Group style={{ height: "100%", } }>
+                                                                <Button className="button"
+                                                                    variant="success"
+                                                                    type="button"
+                                                                    style={{ backgroundColor: '#038e64', height: "100%", }}
+                                                                    onClick={() => this.setState({ productParkTreeDiagramLoading: true })}
+                                                                    disabled={this.state.productParkTreeDiagramLoading}>
+                                                                    Поиск
+                                                                </Button>
+                                                            </Form.Group>
                                                         </Col>
                                                     </Row>
                                                 </Row>
