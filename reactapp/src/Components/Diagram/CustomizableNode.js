@@ -69,7 +69,9 @@ export function CustomizableNode({ data }) {
 
     const [node_panel_text, set_node_panel_text] = useState(<div><label htmlFor="text" style={{ marginTop: '5px' }}>Reload</label></div>);
 
-
+    const handleCloseNodePanel = (e) => {
+        set_focus_state(false);
+    }
 
     const handleReloadNodeInformation = (e) => {
         let get_object_info = new GetObjectInfo();
@@ -94,6 +96,7 @@ export function CustomizableNode({ data }) {
             } isVisible={data.isGroupNode != true ? true : false}>
                 <div className="node-status-panel" style={{ display: panel_visible_state ? '' : 'none' }}>
                     <div className="node-button-panel-area">
+                        <button onClick={handleCloseNodePanel}>✕</button>
                         <button onClick={handleToolbarClick}>
                             {data.hidden ? "+" : "-"}
                         </button>
